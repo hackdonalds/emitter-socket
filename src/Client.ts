@@ -12,11 +12,13 @@ const nativeEvents = ["ws:close", "ws:error", "ws:open", "ws:message"]
 export default class Client extends Emitter<PossibleEvents> {
     id: string
     ws: WebSocket
+    room: string
     constructor(opts: Options) {
         super()
         const { host, port, secure, room } = opts
         this.id = guid()
-        const connectString = `ws${secure ? 's' : ''}://${host}:${port}/${room}/${this.id}`
+        this.room = room
+        const connectString = `ws${secure ? 's' : ''}://${host}:${port}/${this.room}/${this.id}`
         this.ws = new WebSocket(connectString)
         console.log(`Connecting to ${connectString}`)
         this.ws.onclose = (event) => this.emit('ws:close', event)
@@ -28,7 +30,7 @@ export default class Client extends Emitter<PossibleEvents> {
                 this.emit('ws:message', parsedMessage)
                 const { _event, ...rest } = parsedMessage
                 if (_event && !nativeEvents.includes(_event)) {
-                    this.emit(_event.type, ...rest)
+                    this.emit(_event, rest)
                 }
             } catch (error) {
                 console.error(`Socket message is not a valid json object : `, event.data, error)
@@ -47,10 +49,10 @@ export default class Client extends Emitter<PossibleEvents> {
             payload
         })
     }
-    triggerOnRoom(roomID: string, _event: string, payload: any) {
+    triggerOnRoom(_event: string, payload: any) {
         this.send({
             type: 'broadcast',
-            room: roomID,
+            room: this.room,
             _event,
             payload
         })

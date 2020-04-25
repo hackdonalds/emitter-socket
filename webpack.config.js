@@ -11,6 +11,7 @@ const baseConfig = {
         filename: '[name].js',
         libraryTarget: 'umd',
         publicPath: '/',
+        library:'EmitterSocketClient',
         globalObject: 'this'
     },
     devtool: 'inline-source-map',
