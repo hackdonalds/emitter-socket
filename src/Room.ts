@@ -4,12 +4,12 @@ import { RemoteTrigger } from "./types"
 import guid from "./guid";
 
 export class Client extends Emitter<'ws:message'> {
-    constructor(public id: string, public ws: WebSocket, public room: Room) {
+     constructor(public id: string, public ws: WebSocket, public room: Room) {
         super()
         this.id = id
         this.ws = ws
         this.room = room
-        
+        this.room.addClient(this)
         this.ws.onclose = () => {
             this.room.removeClient(this)
         }
