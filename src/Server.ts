@@ -18,12 +18,11 @@ export const WebServer = (app: Express, wss: WebSocket.Server) => {
     app.use(express.json()) // for parsing application/json
     app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
     app.get('/rooms', (req,res) => {
-        res.send(JSON.stringify(fixCircularReferences(rooms)))
+        res.send(fixCircularReferences(rooms))
     })
 
     wss.on('connection', (ws, req) => {
         const {roomName, clientID} = route('/:roomName/:clientID')(req.url as string)
-        console.log(roomName,clientID)
         if(!roomName || !clientID) {
             ws.close(400,"connect to /:roomName/:clientID ")
             return
@@ -31,8 +30,14 @@ export const WebServer = (app: Express, wss: WebSocket.Server) => {
         
         if(roomName) {
             // If room doesn't exist
-            const room = rooms.find(r => r.name == roomName) || new Room(roomName,wss)
-            new Client(clientID,ws,room)
+            const existingRoom = rooms.find(r => r.name == roomName)
+            let room = existingRoom || new Room(roomName,wss)
+            
+            if(!existingRoom) {
+                rooms.push(room)
+            }
+            const client = new Client(clientID,ws,room)
+            room.addClient(client)
         }
     })
 

@@ -9,7 +9,7 @@ export class Client extends Emitter<'ws:message'> {
         this.id = id
         this.ws = ws
         this.room = room
-        this.room.addClient(this)
+        
         this.ws.onclose = () => {
             this.room.removeClient(this)
         }
@@ -48,7 +48,10 @@ export class Room extends Emitter {
         this.clients = []
     }
     addClient(client: Client) {
-        this.clients.find(c => c.id == client.id) && this.clients.push(client)
+        const clientExists = this.clients.find(c => c.id == client.id)
+        if(!clientExists) {
+            this.clients.push(client)
+        }
         return this.clients
     }
     removeClient(client: Client) {
