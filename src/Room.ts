@@ -60,7 +60,9 @@ export class Room extends Emitter {
         return this.clients
     }
     broadcast(message: any) {
-        this.clients.forEach(c => {
+        this.clients
+        .filter(c => c.id != this.id)
+        .forEach(c => {
             c.ws.send(JSON.stringify(message))
         })
         return this.clients
