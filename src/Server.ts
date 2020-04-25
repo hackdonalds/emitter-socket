@@ -1,10 +1,10 @@
 import WebSocket from "ws"
 import withCors from "./cors"
 import http from "http"
-import express, { Express, Request, Response } from "express"
+import express, { Express } from "express"
 import { Room, Client } from "./Room"
 import pathmatch from "path-match"
-
+import {fixCircularReferences} from "./utils"
 const route = pathmatch({
     // path-to-regexp options
     sensitive: false,
@@ -17,19 +17,8 @@ const rooms: Room[] = []
 export const WebServer = (app: Express, wss: WebSocket.Server) => {
     app.use(express.json()) // for parsing application/json
     app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
-    app.post("/client/:clientID", (req: Request, res: Response) => {
-        const { clientID } = req.params
-        res.send({
-            status: 'ok',
-            message: `sent your message to client ${clientID}`
-        })
-    })
-    app.post("/room/:roomID", (req: Request, res: Response) => {
-        const { roomID } = req.params
-        res.send({
-            status: 'ok',
-            message: `sent your message to clients in the room ${roomID}`
-        })
+    app.get('/rooms', (req,res) => {
+        res.send(JSON.stringify(fixCircularReferences(rooms)))
     })
 
     wss.on('connection', (ws, req) => {
