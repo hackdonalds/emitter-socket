@@ -36,6 +36,14 @@ const peer = new EmitterClient({
 })
 ```
 
+*To run emitter server*
+
+```javascript
+import {server} from "@hackdonalds/emitter/socket/dist/server"
+const PORT = process.env.PORT || 8080
+server.listen(PORT)
+```
+
 ## Examples
 
 Trigger the event on every peer connected to the room:

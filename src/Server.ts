@@ -14,7 +14,7 @@ const route = pathmatch({
 
 const rooms: Room[] = []
 
-export const WebServer = (app: Express, wss: WebSocket.Server) => {
+const WebServer = (app: Express, wss: WebSocket.Server) => {
     app.use(express.json()) // for parsing application/json
     app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
     if (process.env.NODE_ENV == "development") {
@@ -46,10 +46,10 @@ export const WebServer = (app: Express, wss: WebSocket.Server) => {
 }
 
 
-const app = withCors(express())
-const server = http.createServer(app)
-const wss = new WebSocket.Server({ server });
-const PORT = process.env.PORT || 8080
+export const app = withCors(express())
+export const server = http.createServer(app)
+export const wss = new WebSocket.Server({ server });
+
 WebServer(app, wss)
-server.listen(PORT)
+
 
