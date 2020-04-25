@@ -41,8 +41,7 @@ const peer = new EmitterClient({
 Trigger the event on every peer connected to the room:
 
 ```javascript
-peer.triggerOnRoom({
-    type: 'event_type',
+peer.triggerOnRoom('event_type',{
     ...yourData
 })
 ```
@@ -50,8 +49,7 @@ peer.triggerOnRoom({
 Or trigger event on another peer
 
 ```javascript
-peer.triggerOnClient(clientID, {
-    type: 'event_type',
+peer.triggerOnClient(clientID, 'event_name', {
     ...yourData
 })
 ```
