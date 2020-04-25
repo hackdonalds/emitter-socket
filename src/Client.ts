@@ -1,6 +1,6 @@
 import Emitter from "@hackdonalds/emitter"
 import guid from "./guid"
-import { BroadcastTrigger, SendTrigger } from "./types"
+import { RemoteTrigger } from "./types"
 type PossibleEvents = "ws:close" | "ws:error" | "ws:open" | "ws:message"
 type Options = {
     host: string
@@ -8,6 +8,7 @@ type Options = {
     room: string
     secure?: boolean
 }
+const nativeEvents = ["ws:close", "ws:error", "ws:open", "ws:message"]
 export default class Client extends Emitter<PossibleEvents> {
     id: string
     ws: WebSocket
@@ -25,27 +26,33 @@ export default class Client extends Emitter<PossibleEvents> {
             try {
                 const parsedMessage = JSON.parse(event.data)
                 this.emit('ws:message', parsedMessage)
+                const { _event, ...rest } = parsedMessage
+                if (_event && !nativeEvents.includes(_event)) {
+                    this.emit(_event.type, ...rest)
+                }
             } catch (error) {
                 console.error(`Socket message is not a valid json object : `, event.data, error)
             }
         }
     }
-    send(message: BroadcastTrigger | SendTrigger) {
+    send(message: RemoteTrigger) {
         const stringifiedMessage = JSON.stringify(message)
         this.ws.send(stringifiedMessage)
     }
-    triggerOnClient(clientID: string, event: any) {
+    triggerOnClient(clientID: string, _event: string, payload: any) {
         this.send({
             type: 'send',
             id: clientID,
-            event
+            _event,
+            payload
         })
     }
-    triggerOnRoom(roomID: string, event: any) {
+    triggerOnRoom(roomID: string, _event: string, payload: any) {
         this.send({
             type: 'broadcast',
             room: roomID,
-            event
+            _event,
+            payload
         })
     }
 

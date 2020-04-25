@@ -23,11 +23,11 @@ export class Client extends Emitter<'ws:message'> {
         })
 
         this.on('ws:message', (message: RemoteTrigger) => {
-            const { event } = message
+            const { _event, payload } = message
             if (message.type == 'broadcast') {
-                this.room.broadcast(event)
+                this.room.broadcast({_event, ...payload})
             } else if (message.type == 'send') {
-                this.room.send(message.id as string, event)
+                this.room.send(message.id as string, {_event, ...payload})
             }
         })
     }
